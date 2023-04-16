@@ -11,7 +11,9 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.10.0
 	github.com/golang/mock v1.4.3
 	github.com/google/uuid v1.1.1
+	github.com/gorilla/websocket v1.5.0
 	github.com/jmoiron/sqlx v1.2.0
+	github.com/lib/pq v1.10.8
 	github.com/pkg/errors v0.9.1
 	github.com/testcontainers/testcontainers-go v0.5.1
 	go.uber.org/zap v1.15.0

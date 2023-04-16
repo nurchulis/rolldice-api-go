@@ -5,13 +5,18 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"syscall"
-
 	"rolldice-go-api/internal/config"
 	"rolldice-go-api/pkg/log"
+	"syscall"
 
+	"github.com/gorilla/websocket"
 	"github.com/pkg/errors"
 )
+
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+}
 
 // Start to start the server
 func Start(cfg *config.Config, r http.Handler, logger log.Logger) error {
@@ -27,7 +32,6 @@ func Start(cfg *config.Config, r http.Handler, logger log.Logger) error {
 		logger.Infof("http server listening on :%s", cfg.Server.Port)
 		serverErrors <- server.ListenAndServe()
 	}()
-
 	// Shutdown
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)

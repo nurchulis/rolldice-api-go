@@ -10,8 +10,8 @@ import (
 	"rolldice-go-api/internal/config"
 	"rolldice-go-api/pkg/log"
 
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 // Version set current code version
@@ -47,12 +47,13 @@ func run() error {
 		return err
 	}
 	// connect to the database
-	db, err := sqlx.Connect("mysql", cfg.DB.Dsn)
+	db, err := sqlx.Connect("postgres", cfg.DB.Dsn)
 	if err != nil {
 		logger.Errorf("failed to connect to database: %s", err)
 		return err
 	}
 
 	r := server.Routing(db, logger)
+	go server.BroadcastMsg()
 	return server.Start(cfg, r, logger)
 }
