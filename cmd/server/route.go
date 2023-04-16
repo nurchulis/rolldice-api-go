@@ -43,16 +43,15 @@ func Routing(db *sqlx.DB, logger log.Logger) chi.Router {
 		render.HTML(w, r, "<html><head><title>Go Starter Kit</title></head><body>Welcome to Go Starter Kit</head></body></html>")
 	})
 
-	r.Get("/socket", func(w http.ResponseWriter, r *http.Request) {
+	//Web Socket Handler
+	r.Get("/play", func(w http.ResponseWriter, r *http.Request) {
 		c, err := upgrader.Upgrade(w, r, nil)
 		if err != nil {
 			logging.Print("upgrade:", err)
 			return
 		}
 		defer c.Close()
-
 		sessionID := fmt.Sprintf("%p", c)
-		logging.Println(sessionID)
 		clients[sessionID] = c
 		for {
 			mt, message, err := c.ReadMessage()
@@ -68,7 +67,7 @@ func Routing(db *sqlx.DB, logger log.Logger) chi.Router {
 				Dice:   receivedMessage.Dice,
 				UserId: receivedMessage.UserId,
 			}
-			smessageBytes, err := json.Marshal(smessage)
+			smessageBytes, err := json.Marshal(receivedMessage)
 
 			logging.Printf("recv: %s", message)
 			err = c.WriteMessage(mt, smessageBytes)
