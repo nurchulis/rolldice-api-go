@@ -8,10 +8,10 @@ import (
 	"rolldice-go-api/pkg/mid"
 
 	"rolldice-go-api/internal/dice"
-
 	"rolldice-go-api/internal/healthcheck"
 	"rolldice-go-api/internal/user"
 	"rolldice-go-api/pkg/log"
+	"rolldice-go-api/pkg/model/transform"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
@@ -24,12 +24,7 @@ import (
 var validate *validator.Validate
 
 var clients = make(map[string]*websocket.Conn)
-var broadcast = make(chan Message)
-
-type Message struct {
-	Dice   string `json:"dice"`
-	UserId string `json:"userid"`
-}
+var broadcast = make(chan transform.ResultDice)
 
 // Routing setup api routing
 func Routing(db *sqlx.DB, logger log.Logger) chi.Router {
@@ -40,7 +35,7 @@ func Routing(db *sqlx.DB, logger log.Logger) chi.Router {
 
 	// homepage welcome page
 	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
-		render.HTML(w, r, "<html><head><title>Go Starter Kit</title></head><body>Welcome to Go Starter Kit</head></body></html>")
+		render.HTML(w, r, "Running...")
 	})
 
 	//Web Socket Handler
@@ -53,32 +48,42 @@ func Routing(db *sqlx.DB, logger log.Logger) chi.Router {
 		defer c.Close()
 		sessionID := fmt.Sprintf("%p", c)
 		clients[sessionID] = c
+		logging.Println(sessionID)
 		for {
 			mt, message, err := c.ReadMessage()
 			if err != nil {
 				logging.Println("read:", err)
 				break
 			}
-
-			var receivedMessage Message
+			var receivedMessage transform.ResultDice
 			err = json.Unmarshal(message, &receivedMessage)
-
-			smessage := Message{
-				Dice:   receivedMessage.Dice,
-				UserId: receivedMessage.UserId,
+			smessage := transform.ResultDice{
+				Dice:      receivedMessage.Dice,
+				UserId:    receivedMessage.UserId,
+				EventName: receivedMessage.EventName,
 			}
-			smessageBytes, err := json.Marshal(receivedMessage)
-
-			logging.Printf("recv: %s", message)
-			err = c.WriteMessage(mt, smessageBytes)
+			// smessageBytes, err := json.Marshal(smessage)
+			// if err != nil {
+			// 	logging.Println("read:", err)
+			// 	break
+			// }
+			// logging.Printf("recv: %s", message)
+			// err = c.WriteMessage(mt, smessageBytes)
 			if err != nil {
 				logging.Println("write:", err)
 				break
 			}
+			if smessage.EventName == "rolldice" {
+				result_dice, data_result := dice.RollDice()
+				MessageResult := transform.ResultDice{
+					DiceTotal: int(result_dice.DiceTotal),
+				}
+				broadcast <- MessageResult
+				err = c.WriteMessage(mt, data_result)
+			} else {
+				broadcast <- smessage
+			}
 
-			logging.Println(sessionID)
-
-			broadcast <- smessage
 		}
 	})
 
@@ -100,8 +105,6 @@ func BroadcastMsg() {
 		message := <-broadcast
 
 		for sessionID, client := range clients {
-			// Skip sending the message back to the sender
-			// Convert the message to bytes
 			messageBytes, err := json.Marshal(message)
 			if err != nil {
 				logging.Println("Failed to marshal message to JSON:", err)
@@ -109,10 +112,8 @@ func BroadcastMsg() {
 			}
 
 			if message.UserId == sessionID {
-				logging.Println("KII", message)
 				err = client.WriteMessage(websocket.TextMessage, messageBytes)
 			}
-			// Write the message to the client
 			if err != nil {
 				logging.Println("Failed to write message to WebSocket:", err)
 				client.Close()
