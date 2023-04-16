@@ -10,6 +10,17 @@ type ResultDice struct {
 	RecivedPoint int    `json:"received_point"`
 }
 
+type PayloadPlay struct {
+	Dice      int    `json:"dice"`
+	UserId    string `json:"userid"`
+	EventName string `json:"event"`
+	Bet       string `json:"bet"`
+	BetPoint  int    `json:"bet_point"`
+	RoomId    int    `json:"received_point"`
+}
+
 type ResultDiceCal struct {
-	DiceTotal int `json:"dice_total"`
+	DiceTotal    int    `json:"dice_total"`
+	Status       string `json:"status"`
+	RecivedPoint int    `json:"received_point"`
 }

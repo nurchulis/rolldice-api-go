@@ -55,33 +55,30 @@ func Routing(db *sqlx.DB, logger log.Logger) chi.Router {
 				logging.Println("read:", err)
 				break
 			}
-			var receivedMessage transform.ResultDice
+			var receivedMessage transform.PayloadPlay
 			err = json.Unmarshal(message, &receivedMessage)
-			smessage := transform.ResultDice{
+			smessage := transform.PayloadPlay{
 				Dice:      receivedMessage.Dice,
 				UserId:    receivedMessage.UserId,
 				EventName: receivedMessage.EventName,
+				Bet:       receivedMessage.Bet,
+				BetPoint:  receivedMessage.BetPoint,
+				RoomId:    receivedMessage.RoomId,
 			}
-			// smessageBytes, err := json.Marshal(smessage)
-			// if err != nil {
-			// 	logging.Println("read:", err)
-			// 	break
-			// }
-			// logging.Printf("recv: %s", message)
-			// err = c.WriteMessage(mt, smessageBytes)
 			if err != nil {
 				logging.Println("write:", err)
 				break
 			}
 			if smessage.EventName == "rolldice" {
-				result_dice, data_result := dice.RollDice()
+				result_dice, data_result := dice.RollDice(smessage.Bet, smessage.Dice, smessage.BetPoint)
 				MessageResult := transform.ResultDice{
 					DiceTotal: int(result_dice.DiceTotal),
 				}
 				broadcast <- MessageResult
 				err = c.WriteMessage(mt, data_result)
 			} else {
-				broadcast <- smessage
+				// For MultiPlayer Gameplay
+				//broadcast <- smessage
 			}
 
 		}

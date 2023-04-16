@@ -2,7 +2,6 @@ package dice
 
 import (
 	"encoding/json"
-	logging "log"
 	"math/rand"
 	"net/http"
 	"rolldice-go-api/pkg/log"
@@ -26,12 +25,46 @@ func RegisterHTTPHandlersDice(http HTTP) http.Handler {
 	return r
 }
 
-func RollDice() (dicetransform.ResultDiceCal, []byte) {
-	randomNumber := rand.Intn(6) + 1
-	logging.Println("IKII", randomNumber)
-	resultDice := dicetransform.ResultDiceCal{
-		DiceTotal: int(randomNumber),
+func RollDice(Bet string, Dice int, BetPoint int) (dicetransform.ResultDiceCal, []byte) {
+	var (
+		status string
+		is_win bool
+		is_big bool
+		point  int
+	)
+	sum := 0
+	for i := 0; i < Dice; i++ {
+		randomNumber := rand.Intn(6) + 1
+		sum += randomNumber
 	}
-	smessageBytess, _ := json.Marshal(resultDice)
-	return resultDice, smessageBytess
+
+	if sum >= 6 {
+		is_big = true
+	} else {
+		is_big = false
+	}
+
+	if Bet == "small" && is_big == false {
+		is_win = true
+	} else if Bet == "big" && is_big == true {
+		is_win = true
+	} else {
+		is_win = false
+	}
+
+	if is_win == true {
+		status = "win"
+		point = BetPoint * 2
+	} else {
+		status = "lose"
+		point = -BetPoint
+	}
+
+	resultDice := dicetransform.ResultDiceCal{
+		DiceTotal:    sum,
+		Status:       status,
+		RecivedPoint: point,
+	}
+	smessageBytes, _ := json.Marshal(resultDice)
+	return resultDice, smessageBytes
 }
