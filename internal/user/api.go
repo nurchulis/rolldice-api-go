@@ -14,6 +14,7 @@ import (
 // RegisterHandlers registers handlers for specified path
 func RegisterHandlers(r chi.Router, db *sqlx.DB, logger log.Logger, validate *validator.Validate) {
 	r.Mount("/users", RegisterHTTPHandlers(NewUserHTTP(db, logger, validate)))
+	r.Mount("/register", RegisterHTTPHandlers(NewUserHTTP(db, logger, validate)))
 }
 
 // RegisterHTTPHandlers registers http handlers for users endpoint

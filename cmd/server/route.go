@@ -76,11 +76,14 @@ func Routing(db *sqlx.DB, logger log.Logger) chi.Router {
 				}
 				broadcast <- MessageResult
 				err = c.WriteMessage(mt, data_result)
+				if err != nil {
+					logging.Println("write:", err)
+					break
+				}
 			} else {
 				// For MultiPlayer Gameplay
 				//broadcast <- smessage
 			}
-
 		}
 	})
 
