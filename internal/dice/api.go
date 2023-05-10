@@ -25,7 +25,7 @@ func RegisterHTTPHandlersDice(http HTTP) http.Handler {
 	return r
 }
 
-func RollDice(Bet string, Dice int, BetPoint int) (dicetransform.ResultDiceCal, []byte) {
+func RollDice(Bet string, Dice int, BetPoint int, UserId string) (dicetransform.ResultDiceCal, []byte) {
 	var (
 		status string
 		is_win bool
@@ -66,5 +66,8 @@ func RollDice(Bet string, Dice int, BetPoint int) (dicetransform.ResultDiceCal, 
 		RecivedPoint: point,
 	}
 	smessageBytes, _ := json.Marshal(resultDice)
+
+	// user, err := repo.GetByUsername(context.Background(), username)
+
 	return resultDice, smessageBytes
 }

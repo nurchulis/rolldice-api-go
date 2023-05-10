@@ -16,7 +16,7 @@ type PayloadPlay struct {
 	EventName string `json:"event"`
 	Bet       string `json:"bet"`
 	BetPoint  int    `json:"bet_point"`
-	RoomId    int    `json:"received_point"`
+	SessionID int    `json:"session_id"`
 }
 
 type ResultDiceCal struct {

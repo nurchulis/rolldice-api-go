@@ -29,6 +29,11 @@ var broadcast = make(chan transform.ResultDice)
 // Routing setup api routing
 func Routing(db *sqlx.DB, logger log.Logger) chi.Router {
 	validate = validator.New()
+	var upgrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+	}
 
 	// setup server routing
 	r := chi.NewRouter()
@@ -63,14 +68,14 @@ func Routing(db *sqlx.DB, logger log.Logger) chi.Router {
 				EventName: receivedMessage.EventName,
 				Bet:       receivedMessage.Bet,
 				BetPoint:  receivedMessage.BetPoint,
-				RoomId:    receivedMessage.RoomId,
+				SessionID: receivedMessage.SessionID,
 			}
 			if err != nil {
 				logging.Println("write:", err)
 				break
 			}
 			if smessage.EventName == "rolldice" {
-				result_dice, data_result := dice.RollDice(smessage.Bet, smessage.Dice, smessage.BetPoint)
+				result_dice, data_result := dice.RollDice(smessage.Bet, smessage.Dice, smessage.BetPoint, smessage.UserId)
 				MessageResult := transform.ResultDice{
 					DiceTotal: int(result_dice.DiceTotal),
 				}
