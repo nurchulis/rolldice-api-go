@@ -27,15 +27,19 @@ func RegisterHTTPHandlersDice(http HTTP) http.Handler {
 
 func RollDice(Bet string, Dice int, BetPoint int, UserId string) (dicetransform.ResultDiceCal, []byte) {
 	var (
-		status string
-		is_win bool
-		is_big bool
-		point  int
+		status      string
+		is_win      bool
+		is_big      bool
+		point       int
+		diceResults []dicetransform.Dices
 	)
 	sum := 0
-	for i := 0; i < Dice; i++ {
+
+	for i := 1; i <= Dice; i++ {
 		randomNumber := rand.Intn(6) + 1
 		sum += randomNumber
+		diceResult := dicetransform.Dices{DiceName: i, DiceTotal: randomNumber}
+		diceResults = append(diceResults, diceResult)
 	}
 
 	if sum >= 6 {
@@ -61,7 +65,7 @@ func RollDice(Bet string, Dice int, BetPoint int, UserId string) (dicetransform.
 	}
 
 	resultDice := dicetransform.ResultDiceCal{
-		DiceTotal:    sum,
+		DiceTotal:    diceResults,
 		Status:       status,
 		RecivedPoint: point,
 	}

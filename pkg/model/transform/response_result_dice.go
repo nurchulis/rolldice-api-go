@@ -2,12 +2,12 @@ package transform
 
 // Pagination to represents common parameters for endpoint that implement pagination
 type ResultDice struct {
-	Dice         int    `json:"dice"`
-	UserId       string `json:"userid"`
-	EventName    string `json:"event"`
-	Status       string `json:"status"`
-	DiceTotal    int    `json:"dice_total"`
-	RecivedPoint int    `json:"received_point"`
+	Dice         int     `json:"dice"`
+	UserId       string  `json:"userid"`
+	EventName    string  `json:"event"`
+	Status       string  `json:"status"`
+	DiceTotal    []Dices `json:"dices"`
+	RecivedPoint int     `json:"received_point"`
 }
 
 type PayloadPlay struct {
@@ -19,8 +19,13 @@ type PayloadPlay struct {
 	SessionID int    `json:"session_id"`
 }
 
+type Dices struct {
+	DiceName  int `json:"dice_name"`
+	DiceTotal int `json:"dice_total"`
+}
+
 type ResultDiceCal struct {
-	DiceTotal    int    `json:"dice_total"`
-	Status       string `json:"status"`
-	RecivedPoint int    `json:"received_point"`
+	DiceTotal    []Dices `json:"dices"`
+	Status       string  `json:"status"`
+	RecivedPoint int     `json:"received_point"`
 }

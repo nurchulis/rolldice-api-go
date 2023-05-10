@@ -77,7 +77,7 @@ func Routing(db *sqlx.DB, logger log.Logger) chi.Router {
 			if smessage.EventName == "rolldice" {
 				result_dice, data_result := dice.RollDice(smessage.Bet, smessage.Dice, smessage.BetPoint, smessage.UserId)
 				MessageResult := transform.ResultDice{
-					DiceTotal: int(result_dice.DiceTotal),
+					DiceTotal: result_dice.DiceTotal,
 				}
 				broadcast <- MessageResult
 				err = c.WriteMessage(mt, data_result)
