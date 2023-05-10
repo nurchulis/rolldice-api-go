@@ -25,3 +25,7 @@ To run tests, run the following command
 ![App Screenshot](https://raw.githubusercontent.com/nurchulis/rolldice-api-go/single-player/documentation/1.png)
 
 ![App Screenshot](https://raw.githubusercontent.com/nurchulis/rolldice-api-go/single-player/documentation/2.png)
+
+
+Source For Dice Play
+https://codepen.io/lenasta92579651/pen/yLeVmdW
